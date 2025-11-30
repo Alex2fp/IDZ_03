@@ -21,7 +21,7 @@ int main(void) {
     signal(SIGINT, handle_sigint);
 
     struct mq_attr attr = {0};
-    attr.mq_maxmsg = 20;
+    attr.mq_maxmsg = 10;
     attr.mq_msgsize = MQ_MSG_SIZE;
 
     mqd_t mq = mq_open(MQ_NAME, O_CREAT | O_RDONLY, 0666, &attr);

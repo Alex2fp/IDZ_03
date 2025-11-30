@@ -118,17 +118,17 @@ static void cleanup_resources(int unlink_all) {
     }
     if (data_sem) {
         sem_close(data_sem);
-        if (unlink_all) sem_unlink(DATA_SEM);
     }
     if (print_sem) {
         sem_close(print_sem);
-        if (unlink_all) sem_unlink(PRINT_SEM);
     }
     if (mq != (mqd_t)-1) {
         mq_close(mq);
-        if (unlink_all) mq_unlink(MQ_NAME);
     }
     if (unlink_all) {
+        sem_unlink(DATA_SEM);
+        sem_unlink(PRINT_SEM);
+        mq_unlink(MQ_NAME);
         shm_unlink(SHM_NAME);
     }
 }
@@ -207,6 +207,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (do_cleanup) {
+        cleanup_resources(1);
+        return EXIT_SUCCESS;
+    }
+
     if (do_init) {
         init_shared(boltuns);
     }
@@ -225,7 +230,7 @@ int main(int argc, char *argv[]) {
     open_shared();
 
     struct mq_attr attr = {0};
-    attr.mq_maxmsg = 20;
+    attr.mq_maxmsg = 10;
     attr.mq_msgsize = MQ_MSG_SIZE;
     mq = mq_open(MQ_NAME, O_CREAT | O_WRONLY, 0666, &attr);
     if (mq == (mqd_t)-1) {
